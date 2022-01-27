@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Dua Lipa",
+    "url": "https://www.eticket.co/masinformacion.aspx?idevento=13592",
+    "triggers": [
+      {
+        "selector": ".botoncompra",
+        "idleNumber": 0
+      }
+    ]
+  },
+  {
+    "name": "Molchat Doma",
+    "url": "https://www.entradasamarillas.com/event/molchat-doma",
+    "triggers": [
+      {
+        "selector": "#buyButton",
+        "idleNumber": 1
+      }
+    ]
+  }
+]
