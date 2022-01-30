@@ -1,6 +1,6 @@
 import axios from "axios";
-import cheerio from "cheerio"
 import winston from "winston";
+import puppeteer from "puppeteer";
 import fs from "fs"
 import { inspect } from 'util'
 import {val} from "cheerio/lib/api/attributes";
@@ -71,15 +71,15 @@ const updateConfig = ()=>{
 }
 updateConfig()
 
-const triggerNotification = async (watch: Watch, trigger: Trigger, value: number, response: any) => {
-    logger.info(`A change has been detected! The watch ${watch.name} has been triggered by the '${trigger}' trigger. 
-    The value found was ${value} instead of ${trigger.idleNumber}`)
+const triggerNotification = async (watch: Watch, trigger: Trigger, value: number, response: puppeteer.HTTPResponse) => {
+    logger.info(`A change has been detected! The watch ${watch.name} has been triggered by the '${trigger.selector}' trigger. ` +
+    `The value found was ${value} instead of ${trigger.idleNumber}`)
 
     let success_send = false;
     let tryCount = 0;
     while (!success_send && tryCount < 5) {
         tryCount++;
-        logger.debug(`The response status: ${response.status}`)
+        logger.debug(`The response status: ${response.status()}`)
         try {
             const req = await axios.get(" https://maker.ifttt.com/trigger/tickets_available/with/key/fk_yuNrWbkYnfjeyFx59PPZRcInK69jTUL7eght8yXh", {params: {
                 value1: watch.name
@@ -107,6 +107,8 @@ const triggerNotification = async (watch: Watch, trigger: Trigger, value: number
 }
 
 const main = async () =>{
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
     // Infinite loop that checks webpage infinitely and triggers certain actions if
     while (continueLoop) {
         updateConfig()
@@ -115,17 +117,17 @@ const main = async () =>{
                 if (blacklist.indexOf(watch.name) === -1) {
                     try {
                         // Loading the webpage and parsing it
-                        let response = await axios.get(watch.url)
-                        let htmlContent = response.data
-                        let $ = cheerio.load(htmlContent)
+                        let response = await page.goto(watch.url);
 
                         // Check each trigger of the watch
                         for (let trigger of watch.triggers) {
-                            let elementCount = $(trigger.selector).length
+                            await page.waitForTimeout(1500)
+                            let elements = await page.$$(trigger.selector)
+                            let elementCount = elements.length
                             logger.debug(`${trigger.selector} trigger for the watch '${watch.name}' got a 
                         value of ${elementCount}, with expected value of ${trigger.idleNumber}`);
 
-                            if (elementCount !== trigger.idleNumber && response.status === 200) {
+                            if (elementCount !== trigger.idleNumber && response.status() === 200) {
                                 // A trigger was fired!
                                 triggerNotification(watch, trigger, elementCount, response)
                             }

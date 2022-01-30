@@ -15,7 +15,7 @@
     "triggers": [
       {
         "selector": "#buyButton",
-        "idleNumber": 1
+        "idleNumber": 0
       }
     ]
   }
