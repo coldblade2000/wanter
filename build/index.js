@@ -8,6 +8,7 @@ const winston_1 = __importDefault(require("winston"));
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const fs_1 = __importDefault(require("fs"));
 const util_1 = require("util");
+const process_1 = __importDefault(require("process"));
 // Should infinite loop continue?
 let continueLoop = true;
 //Simple function that does a thread sleep
@@ -44,6 +45,9 @@ const logger = winston_1.default.createLogger({
     ],
 });
 logger.info(`Program startup!`);
+if (process_1.default.pid) {
+    logger.debug(`The PID used is: ${process_1.default}`);
+}
 //Configuration file
 let config;
 const updateConfig = () => {
@@ -56,8 +60,8 @@ const updateConfig = () => {
 };
 updateConfig();
 const triggerNotification = async (watch, trigger, value, response) => {
-    logger.info(`A change has been detected! The watch ${watch.name} has been triggered by the '${trigger.selector}' trigger. 
-    The value found was ${value} instead of ${trigger.idleNumber}`);
+    logger.info(`A change has been detected! The watch ${watch.name} has been triggered by the '${trigger.selector}' trigger. ` +
+        `The value found was ${value} instead of ${trigger.idleNumber}`);
     let success_send = false;
     let tryCount = 0;
     while (!success_send && tryCount < 5) {
@@ -89,7 +93,10 @@ const triggerNotification = async (watch, trigger, value, response) => {
     return success_send;
 };
 const main = async () => {
-    const browser = await puppeteer_1.default.launch();
+    const browser = await puppeteer_1.default.launch({
+        headless: true,
+        args: []
+    });
     const page = await browser.newPage();
     // Infinite loop that checks webpage infinitely and triggers certain actions if
     while (continueLoop) {

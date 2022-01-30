@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="192.168.0.29" id="ab47cb2a-fba6-4968-850a-0044d359d7a7" keyPath="C:\Users\diego\.ssh\keys\plexbox-privkey" port="22" nameFormat="DESCRIPTIVE" username="coldblade2000" />
+    </configs>
+  </component>
+</project>

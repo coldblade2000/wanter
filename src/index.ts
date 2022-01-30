@@ -3,8 +3,7 @@ import winston from "winston";
 import puppeteer from "puppeteer";
 import fs from "fs"
 import { inspect } from 'util'
-import {val} from "cheerio/lib/api/attributes";
-import * as util from "util";
+import pid from 'process'
 
 
 
@@ -57,10 +56,13 @@ const logger = winston.createLogger({
 });
 
 logger.info(`Program startup!`)
+if (pid.pid) {
+    logger.debug(`The PID used is: ${pid}`)
+}
 
 //Configuration file
 
-let config: Array<Watch>
+let config: Array<Watch>;
 
 const updateConfig = ()=>{
     try{
@@ -107,7 +109,10 @@ const triggerNotification = async (watch: Watch, trigger: Trigger, value: number
 }
 
 const main = async () =>{
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: []
+    });
     const page = await browser.newPage();
     // Infinite loop that checks webpage infinitely and triggers certain actions if
     while (continueLoop) {
